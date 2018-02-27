@@ -10,6 +10,7 @@ void InitSeqQueue(SeqQueue *seq)
 	}
 	seq->size = 0;
 	seq->count = 0;
+	seq->tail = 0;
 }
 
 
@@ -47,52 +48,29 @@ void PopQueue(SeqQueue *seq)
 		// 空队列。
 		return;
 	}
+	if (seq->tail > MAXREPOSITORY)
+	{
+		seq->tail = 0;	
+	}
+	++seq->tail;
 	--seq->count;
 }
 
 
-// 取队尾元素。
-QueueType FindButtom(SeqQueue *seq)
-{
-	if (seq == NULL)
-	{
-		printf("输入错误\n");
-		return 0;
-	}
-	if (seq->count == 0)
-	{
-		printf("队为空\n");
-		return 0;
-	}
-	return seq->data[seq->size-1];
-}
-
-
 // 取队首元素。
-QueueType FindHead(SeqQueue *seq)
+int FindHead(SeqQueue *seq, QueueType *value)
 {
 	if (seq == NULL)
 	{
-		printf("输入错误\n");
 		return 0;
 	}
 	if (seq->count == 0)
 	{
-		printf("队为空\n");
 		return 0;
 	}
-	if (seq->size >= seq->count)
-	{
-		return seq->data[seq->size - seq->count];
-	}
-	else 
-	{
-		size_t tmp = seq->count-seq->size;
-		size_t size = MAXREPOSITORY;
-		return seq->data[size-tmp];
-	}
+	*value = seq->data[seq->tail];
+	return 1;
 }
-
 
 // 销毁。
 void DestoryQueue(SeqQueue *seq)
@@ -103,11 +81,13 @@ void DestoryQueue(SeqQueue *seq)
 	}
 	seq->size = 0;
 	seq->count = 0;
+	seq->tail = 0;
 }
 
 ////////////////
 //以下为测试代码
 ////////////////
+#if 0
 
 void PrintSeqQueue(SeqQueue *seq)
 {
@@ -125,10 +105,6 @@ void PrintSeqQueue(SeqQueue *seq)
 			printf("[%c]->",seq->data[size-count-1]);
 			count++;
 		}
-//		for (; count < seq->count; ++count)
-//		{
-//			printf("[%c]<-",seq->data[count]);
-//		}
 	}
 	else
 	{
@@ -147,14 +123,6 @@ void PrintSeqQueue(SeqQueue *seq)
 				count++;
 			}
 		}
-//		for(; count < seq->count; ++count)
-//		{
-//			if (size-count == 0)
-//			{
-//				size = MAXREPOSITORY;
-//			}
-//			printf("[%c]<-",seq->data[size-count]);
-//		}
 	}
 	printf("[队头]\n");
 }
@@ -205,21 +173,6 @@ void TestPopQueue()
 	PrintSeqQueue(&seq);
 }
 
-void TestFindButtom()
-{
-	TEAM_HEAD;
-	SeqQueue seq;
-	InitSeqQueue(&seq);
-	PushQueue(&seq, 'a');
-	PushQueue(&seq, 'b');
-	PushQueue(&seq, 'c');
-	PushQueue(&seq, 'd');
-	PushQueue(&seq, 'e');
-	PrintSeqQueue(&seq);
-	QueueType ret = FindButtom(&seq);
-	printf("except e actual %c",ret);
-}
-
 void TestFindHead()
 {
 	TEAM_HEAD;
@@ -243,8 +196,10 @@ void TestFindHead()
 	PushQueue(&seq, 'j');
 	PushQueue(&seq, 'k');
 	PrintSeqQueue(&seq);
-	QueueType ret = FindHead(&seq);
-	printf("except e actual %c",ret);
+	QueueType tmp;
+	int ret = FindHead(&seq, &tmp);
+	printf("except 1 actual %d\n",ret);
+	printf("except e actual %c",tmp);
 }
 
 void TestDestoryQueue()
@@ -267,8 +222,8 @@ int main()
 	TestInitSeqQueue();
 	TestPushQueue();
 	TestPopQueue();
-	TestFindButtom();
 	TestFindHead();
 	TestDestoryQueue();
 	return 0;
 }
+#endif
