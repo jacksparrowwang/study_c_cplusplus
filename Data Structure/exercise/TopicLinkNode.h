@@ -58,7 +58,17 @@ int DecideIntersectLinkNode1(LinkNode* head1, LinkNode* head2);
 // 复杂链表的复制。一个链表的每个节点，有一个指向next指针指向下一个节点，还有
 // 一个random指针指向这个链表中的一个随机节点或者NULL，现在要求实现复制这条链
 // 表，返回复制厚的新链表。
+typedef struct ComplexLinkNode{
+	TypeChar data;
+	struct ComplexLinkNode* next;
+    struct ComplexLinkNode *random;
+}ComplexLinkNode;
 
+ComplexLinkNode *CreatComplexNode(TypeChar value);
+
+ComplexLinkNode *CypeComplexLinkNode(ComplexLinkNode *head);
+
+ComplexLinkNode *CypeComplexLinkNode2(ComplexLinkNode *head);
 // 求两个已排序单链表中相同的数据。
 void UnionSet(LinkNode* l1, LinkNode* l2);
 #endif

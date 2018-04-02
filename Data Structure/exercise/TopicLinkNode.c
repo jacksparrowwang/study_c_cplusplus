@@ -572,6 +572,130 @@ int DecideIntersectLinkNode1(LinkNode* head1, LinkNode* head2)
 	return 0;
 }
 
+// 复杂链表的复制。一个链表的每个节点，有一个指向next指针指向下一个节点，还有
+// 一个random指针指向这个链表中的一个随机节点或者NULL，现在要求实现复制这条链
+// 表，返回复制厚的新链表。
+ComplexLinkNode *CreatComplexNode(TypeChar value)
+{
+    ComplexLinkNode* new_node = (ComplexLinkNode*)malloc(sizeof(ComplexLinkNode));
+    if (new_node == NULL)
+    {
+        return NULL;
+    }
+    new_node->data = value;
+    new_node->next = NULL;
+    new_node->random = NULL;
+    return new_node;
+}
+
+size_t offp(ComplexLinkNode* head, ComplexLinkNode* random)
+{
+    ComplexLinkNode* cur = head;
+    size_t count = 0;
+    for (; cur != NULL; cur = cur->next)
+    {
+        if (cur == random)
+        {
+            return count;
+        }
+        ++count;
+    }
+    return (size_t)-1;
+}
+
+ComplexLinkNode* offs(ComplexLinkNode* new_head, size_t offset)
+{
+    ComplexLinkNode* cur = new_head;
+    if (offset == (size_t)-1)
+    {
+        return NULL;
+    }
+    while (offset)
+    {
+        cur = cur->next;
+        --offset;
+    }
+    return cur;
+}
+
+ComplexLinkNode *CypeComplexLinkNode(ComplexLinkNode *head)
+{
+    if (head == NULL)
+    {
+        return NULL;
+    }
+    ComplexLinkNode* new_head = NULL;
+    ComplexLinkNode* new_tail = NULL;
+    ComplexLinkNode* cur = head;
+    // 先复制新的链表，random指针指向空
+    for (; cur != NULL; cur = cur->next)
+    {
+        ComplexLinkNode* new_node = CreatComplexNode(cur->data);
+        if (new_head == new_tail && new_tail == NULL)
+        {
+            new_head = new_tail = new_node;
+        }
+        else
+        {
+            new_tail->next = new_node;
+            new_tail = new_tail->next;
+        }
+    }
+
+    // 开始让原来链表遍历并且把random指针相对于头节点的相对位移记录
+    // 同时让两个链表前移
+    ComplexLinkNode* new_cur = new_head;
+    for (cur = head; new_cur != NULL&&cur != NULL; cur = cur->next, new_cur = new_cur->next)
+    {
+        // 求出原链表中当前节点的相对位置
+        size_t setoff = offp(head, cur->random);
+        // 用原来链表的相对位置，求出当前节点的random指针指向的位置
+        new_cur->random = offs(new_head, setoff);
+    }
+    return new_head;
+}
+
+ComplexLinkNode *CypeComplexLinkNode2(ComplexLinkNode *head)
+{
+    if (head == NULL)
+    {
+        return NULL;
+    }
+    ComplexLinkNode* cur = head;
+    for (; cur != NULL; cur = cur->next->next)
+    {
+        ComplexLinkNode* new_node = CreatComplexNode(cur->data);
+        new_node->next = cur->next;
+        cur->next = new_node;
+    }
+    for (cur = head; cur != NULL; cur = cur->next->next)
+    {
+        if (cur->random == NULL)
+        {
+            cur->next->random = NULL;
+            continue;
+        }
+        cur->next->random = cur->random->next;
+    }
+    ComplexLinkNode* new_head = NULL;
+    ComplexLinkNode* new_tail = NULL;
+    for (cur = head; cur != NULL; cur = cur->next)
+    {
+        ComplexLinkNode* new_delete = cur->next;
+        cur->next = new_delete->next;
+        if (new_head == new_tail && new_tail == NULL)
+        {
+            new_head = new_tail = new_delete;
+        }
+        else
+        {
+            new_tail->next = new_delete;
+            new_tail = new_tail->next;
+        }
+    }
+    return new_head;
+}
+
 // 求两个已排序单链表中相同的数据。
 void UnionSet(LinkNode* l1, LinkNode* l2)
 {
@@ -606,6 +730,30 @@ void UnionSet(LinkNode* l1, LinkNode* l2)
 // 我是分割线
 /////////////////////
 
+void TestComplexLinkNode2()
+{
+	DIVE_LINE;
+    ComplexLinkNode* a = CreatComplexNode('a');
+    ComplexLinkNode* b = CreatComplexNode('b');
+    ComplexLinkNode* c = CreatComplexNode('c');
+    ComplexLinkNode* d = CreatComplexNode('d');
+    a->next = b;
+    b->next = c;
+    c->next = d;
+    a->random = d;
+    b->random = b;
+    c->random = NULL;
+    d->random = c;
+    ComplexLinkNode* new_head = CypeComplexLinkNode(a);
+    ComplexLinkNode*cur = new_head;
+    while (cur != NULL)
+    {
+        printf("[%c[%p] %p]  ",cur->data,cur, cur->random);
+        cur = cur->next;
+    }
+    printf("\n");
+}
+
 void TestUnionSet()
 {
 	DIVE_LINE;
@@ -613,7 +761,7 @@ void TestUnionSet()
 	LinkNode* head1 = NULL;
 	InitLinkNode(&head);
 	InitLinkNode(&head1);
-	LinkNode* pos = PushBackLinkNode(&head,'a');
+	PushBackLinkNode(&head,'a');
 	PushBackLinkNode(&head,'b');
 	PushBackLinkNode(&head,'c');
 	PushBackLinkNode(&head,'e');
@@ -630,7 +778,7 @@ void TestUnionSet()
 	UnionSet(head,head1);
 }
 
-int TestDecideIntersectLinkNode1()
+void TestDecideIntersectLinkNode1()
 {
 	DIVE_LINE;
 	LinkNode* head = NULL;
@@ -655,7 +803,7 @@ int TestDecideIntersectLinkNode1()
 	printf("except 1 actual %d\n",ret);
 }
 
-int TestDecideIntersectLinkNode()
+void TestDecideIntersectLinkNode()
 {
 	DIVE_LINE;
 	LinkNode* head = NULL;
@@ -680,7 +828,7 @@ int TestDecideIntersectLinkNode()
 }
 
 // 1为带环。
-int  TestDecideLoopLinkNode()
+void TestDecideLoopLinkNode()
 {
 	DIVE_LINE;
 	LinkNode* head = NULL;
@@ -707,9 +855,9 @@ void TestEraserBackKNodeLinkNode()
 	DIVE_LINE;
 	LinkNode* head = NULL;
 	InitLinkNode(&head);
-	LinkNode* temp = PushBackLinkNode(&head,'a');
+	PushBackLinkNode(&head,'a');
 	PushBackLinkNode(&head,'c');
-	LinkNode* pos = PushBackLinkNode(&head,'g');
+	PushBackLinkNode(&head,'g');
 	PushBackLinkNode(&head,'f');
 	PushBackLinkNode(&head,'a');
 	PushBackLinkNode(&head,'b');
@@ -765,7 +913,7 @@ void TestMergeOrderLinkNode()
 	LinkNode* head1 = NULL;
 	InitLinkNode(&head);
 	InitLinkNode(&head1);
-	LinkNode* pos = PushBackLinkNode(&head,'a');
+	PushBackLinkNode(&head,'a');
 	PushBackLinkNode(&head,'b');
 	PushBackLinkNode(&head,'c');
 	PushBackLinkNode(&head,'e');
@@ -789,7 +937,7 @@ void TestBubbleSortLinkNode()
 	DIVE_LINE;
 	LinkNode* head = NULL;
 	InitLinkNode(&head);
-	LinkNode* pos = PushBackLinkNode(&head,'a');
+	PushBackLinkNode(&head,'a');
 	PushBackLinkNode(&head,'c');
 	PushBackLinkNode(&head,'g');
 	PushBackLinkNode(&head,'f');
@@ -806,7 +954,7 @@ void TestReverseLinkNode()
 	DIVE_LINE;
 	LinkNode* head = NULL;
 	InitLinkNode(&head);
-	LinkNode* pos = PushBackLinkNode(&head,'a');
+	PushBackLinkNode(&head,'a');
 	PushBackLinkNode(&head,'b');
 	PushBackLinkNode(&head,'c');
 	PushBackLinkNode(&head,'d');
@@ -897,6 +1045,7 @@ int main()
 	TestDecideIntersectLinkNode();
 	TestDecideIntersectLinkNode1();
 	TestUnionSet();
+    TestComplexLinkNode2();
 	return 0;
 }
 
