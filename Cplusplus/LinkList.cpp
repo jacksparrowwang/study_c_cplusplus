@@ -51,6 +51,10 @@ Link::~Link()
 
 Link& Link::operator=(const Link& l)
 {
+    if (this->head == l.head)
+    {
+        return *this;
+    }
     // 先释放原来的链表结点，除头结点
     while (head->next != head)
     {
