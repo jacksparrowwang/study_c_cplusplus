@@ -50,7 +50,7 @@ void PostOrder(TreeNode *root)
 	printf("%c ",root->data);
 }
 
-#if 0
+
 // 层序遍历。
 void LevelOrder(TreeNode *root)
 {
@@ -77,7 +77,43 @@ void LevelOrder(TreeNode *root)
 	}
 	printf("\n");
 }
-#endif
+
+// 判断是否是完全二叉树
+int IsCompleteTree(TreeNode* root)
+{
+	if (root == NULL)
+	{
+		return 0;
+	}
+	SeqQueue queue;
+	InitSeqQueue(&queue);
+	TreeNode* head = NULL;
+	PushQueue(&queue, root);
+	while (queue.count > 0)
+	{
+		FindHead(&queue, &head);
+		// 因为这里入队包括了NULL，只要出队有NULL就跳出
+		if (head == NULL)
+		{
+			break;
+		}
+		PopQueue(&queue);
+		PushQueue(&queue, head->lchild);
+		PushQueue(&queue, head->rchild);
+	}
+	while (queue.count > 0)
+	{
+		PopQueue(&queue);
+		FindHead(&queue, &head);
+		// 如果出队后，还存在不为NULL，那么一定就不是完全二叉树
+		if (head != NULL)
+		{
+			return 0;
+		}
+	}
+	return 1;
+}
+
 
 // 递归创建树。
 TreeNode *_CreatTree(TreeType arr[], size_t size, size_t *index, TreeType null_node)
