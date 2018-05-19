@@ -66,19 +66,13 @@ void SelectSort(int arr[], int size)
 	int i = 0;
 	for (; i < size - 1; ++i)
 	{
-		int flag = 0;
 		int j = 0;
 		for (j = i + 1; j < size; ++j)
 		{
 			if (arr[i] > arr[j])
 			{
 				Swap(&arr[i],&arr[j]);
-				flag = 1;
 			}
-		}
-		if (flag == 0)
-		{
-			break;
 		}
 	}
 	return;
@@ -87,10 +81,10 @@ void SelectSort(int arr[], int size)
 ////////////////////////////
 // 下沉。事先知道或者计算出父节点N，然后通过N*2+1计算出孩子节点
 // 左孩子与右孩子进行比较
-//	1)如果要建立大堆就要把较大值的孩子与父节点进行比较，父节点大进行
-//	交换，小就不需要交换。
-//	2)如果要建立小堆就要把较小值的孩子与父节点进行比较，父节点小进行
+//	1)如果要建立大堆就要把较大值的孩子与父节点进行比较，父节点小进行
 //	交换，大就不需要交换。
+//	2)如果要建立小堆就要把较小值的孩子与父节点进行比较，父节点大进行
+//	交换，小就不需要交换。
 // 然后父节点+1。
 // 当右孩子等于size时候跳出循环
 
@@ -239,6 +233,9 @@ void ShellSort(int arr[], size_t size)
 // 采用前闭后开
 void _MergeArray(int arr[], size_t beg, size_t mid, size_t end, int *tmp)
 {
+    // 每次函数出栈都会调用这个函数。
+    // 最开始从两个元素开始
+    // 一个元素情况是非递归进行
 	size_t cur1 = beg;
 	size_t cur2 = mid;
 	size_t index = 0;
@@ -276,6 +273,11 @@ void _MergeSort(int arr[], size_t beg, size_t end, int *tmp)
 		return;
 	}
 	size_t mid = beg + (end - beg)/2;
+    // [)
+    // 当递归到最底部的时候就剩下两个元素的时候
+    // 仔去判断下一次递归失败所以就剩下两个元素。
+    // 从两个元素开始调元_MergeArray函数，进行从
+    // 最右边进行函数出栈。
 	_MergeSort(arr, beg, mid, tmp);
 	_MergeSort(arr, mid, end, tmp);
 	_MergeArray(arr, beg, mid, end, tmp);
@@ -364,6 +366,10 @@ size_t Partion1(int arr[], size_t beg, size_t end)
 	// 程序到这里说明 left 和 right 已经指向同一个位置
 	// 所以用下标left和right是一样的
 	// 因而返回left和right是一样的。
+    // ******这里
+    // ******一定
+    // ******不能是key
+    // *****因为是对数组操作，key就改变了数组的原有数据。
 	Swap(&arr[right],&arr[end-1]);
 	return right;
 }
@@ -430,7 +436,7 @@ void _QuickSort(int arr[], size_t beg, size_t end)
 	}
 	// 找到基准值的下标，以基准值下标把数组分为开。
 	// 依次划分。
-	size_t mid = Partion3(arr, beg, end);
+	size_t mid = Partion1(arr, beg, end);
 	_QuickSort(arr, beg, mid);
 	_QuickSort(arr, mid+1, end);
 }
@@ -482,6 +488,48 @@ void QuickSortByLoop(int arr[], size_t size)
 	}
 }
 
+void CountSort(int arr[], int size)
+{
+    // 求出最大和最小的数
+    int mindata = arr[0];
+    int maxdata = arr[0];
+    int i = 0;
+    for (; i < size; ++i)
+    {
+        if (mindata > arr[i])
+        {
+            mindata = arr[i];
+        }
+        if (maxdata < arr[i])
+        {
+            maxdata = arr[i];
+        }
+    }
+
+    int range = maxdata - mindata + 1;
+    int *pcount = (int*)malloc(sizeof(int)*range);
+    if (pcount == NULL)
+    {
+        printf("error\n");
+    }
+    memset(pcount, 0, sizeof(int)*range);
+    
+    for (i = 0; i < size; ++i)
+    {
+        pcount[arr[i]-mindata]++;
+    }
+
+    size_t index = 0;
+    for (i = 0;  i < range; ++i)
+    {
+        while (pcount[i]--)
+        {
+            arr[index++] = i + mindata;
+        }
+    }
+    free(pcount);
+}
+
 ////////////////////////
 //以下为测试代码
 ////////////////////////
@@ -492,7 +540,7 @@ void QuickSortByLoop(int arr[], size_t size)
 void TestQuickSortByLoop()
 {
 	HEAD;
-	int arr[] = {23,45,6,23,2345,453456,234,45567,748,7,64,34,56,23,6,2,634,3245,4,73,8};
+	int arr[] = {23,45,6,23,2345,-1,-563,-5453,837458,453456,234,45567,748,7,64,34,56,23,6,2,634,3245,4,73,8};
 	size_t size = sizeof(arr)/sizeof(arr[0]);
 	QuickSortByLoop(arr,size);
 	size_t i = 0;
@@ -507,7 +555,8 @@ void TestQuickSortByLoop()
 void TestQuickSort()
 {
 	HEAD;
-	int arr[] = {23,45,6,23,2345,453456,234,45567,748,7,64,34,56,23,6,2,634,3245,4,73,8};
+	//int arr[] = {23,45,6,23,2345,453456,234,45567,748,7,64,34,56,23,6,2,634,3245,4,73,8};
+    int arr[] = {11,3,6,4,6,4,5,3,7,5,97,23};
 	size_t size = sizeof(arr)/sizeof(arr[0]);
 	QuickSort(arr,size);
 	size_t i = 0;
@@ -638,6 +687,19 @@ void TestHeapSort()
 	printf("\n\n\n");
 }
 
+void TestCountSort()
+{
+	HEAD;
+	int arr[] = {23,45,6,24,35,4,7,8};
+	int size = sizeof(arr)/sizeof(arr[0]);
+	CountSort(arr,size);
+	int i = 0;
+	for (; i < size; ++i)
+	{
+		printf("[%d] ", arr[i]);
+	}
+	printf("\n\n\n");
+}
 
 int main()
 {
@@ -651,5 +713,6 @@ int main()
 	TestMergeSortByLoop();
 	TestQuickSort();
 	TestQuickSortByLoop();
+    TestCountSort();
 	return 0;
 }
