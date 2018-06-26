@@ -38,7 +38,7 @@ public:
 			if (arr[i] != invalid)
 			minheap.push(new TreeNode(arr[i])); // 先建立一个小堆
 		}
-		while (minheap.size() > 1) 
+		while (minheap.size() > 1) // 注意 
 		{
 			// 这里怎么才能把抛回去的父结点与新取出的最小节点区分开
 			// 用节点的指针

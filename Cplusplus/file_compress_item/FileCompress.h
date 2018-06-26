@@ -58,7 +58,7 @@ public:
 	void Compress(const char* file)
 	{
 		// 打开原来的文件
-		FILE* fd = fopen(file, "r");
+		FILE* fd = fopen(file, "rb");
 		if (fd < 0)
 		{
 			perror("fopen error\n");
@@ -67,10 +67,16 @@ public:
 
 		// 统计数组
 		char c = fgetc(fd);
+		//c = fgetc(fd);
+		bi:
 		while (c != EOF)
 		{
 			hashtableInfo[(unsigned char)c].count++;
 			c = fgetc(fd);
+		}
+		if ((c = fgetc(fd)) != EOF)
+		{
+			goto bi;
 		}
 
 		// 创建huffman树
@@ -85,7 +91,7 @@ public:
 		// 创建并且打开新的文件按
 		std::string compressfile = file;
 		compressfile += ".huffman";
-		FILE* fin = fopen(compressfile.c_str(), "w");
+		FILE* fin = fopen(compressfile.c_str(), "wb");
 		assert(fin);
 
 		// 在压缩文件中写入构建huffman的ch和count
@@ -178,12 +184,12 @@ public:
 		}
 		uncompress.erase(pos); //从pos删到尾，默认是string::npos
 
-		// 打开要解压后需要的文件
-		FILE* fout = fopen(uncompress.c_str(), "w");
+		// 打开要解压后,需要写入的文件
+		FILE* fout = fopen(uncompress.c_str(), "wb");
 		assert(fout);
 
 		// 打开压缩文件
-		FILE* fd = fopen(file, "r");
+		FILE* fd = fopen(file, "rb");
 		assert(fd);
 		TmpInfo tmp;
 		fread(&tmp, sizeof(TmpInfo), 1, fd);
@@ -201,19 +207,21 @@ public:
 		LongType n = root->data.count;
 
 		TreeNode* cur = root;
-		char c;
-		while ((c = fgetc(fd)) != EOF)
+		char c = 0;
+		c = fgetc(fd);
+		while (1)
 		{
+			
 			for (size_t i = 0; i < 8; ++i)
 			{
 	
-				if ((c & (1 << i)) == 0) // 因为与完后是0，才是与的那一位为0，其它值都为1，因为就会转成int值
+				if ((c & (1 << i))) // 因为与完后是0，才是与的那一位为0，其它值都为1，因为就会转成int值
 				{
-					cur = cur->left;
+					cur = cur->right;
 				}
 				else
 				{
-					cur = cur->right;
+					cur = cur->left;
 				}
 
 				if (cur->left == NULL && cur->right == NULL)
@@ -222,10 +230,34 @@ public:
 					cur = root;
 					if (--n == 0) // 处理最后几个比特位
 					{
-						break;
+						fclose(fd);
+						fclose(fout);
+						return;
 					}
 				}
 			}
+			c = fgetc(fd);
+		/*char value = fgetc(fd);
+		pos = 0; 
+			for (;;){
+				if (value & (1 << pos))
+					cur = cur->right;
+				else
+					cur = cur->left;
+				++pos;
+
+				if (NULL == cur->left && NULL == cur->right){
+					fputc(cur->data.ch, fout);
+					cur = root;
+					if (--n == 0)
+						break;
+				}
+				if (pos > 7){
+					value = fgetc(fd);
+					pos = 0;
+				}
+			}*/
+
 		}
 		fclose(fd);
 		fclose(fout);
