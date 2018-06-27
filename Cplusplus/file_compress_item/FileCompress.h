@@ -10,9 +10,12 @@ typedef long long LongType;
 
 struct charInfo
 {
-	char ch;
+	unsigned char ch;
 	std::string code;
 	LongType count;
+
+	charInfo() :ch(0), code(""), count(0)
+	{}
 
 	charInfo operator+(const charInfo& info)
 	{
@@ -68,16 +71,16 @@ public:
 		// 统计数组
 		char c = fgetc(fd);
 		//c = fgetc(fd);
-		bi:
-		while (c != EOF)
+		//bi:
+		while (!feof(fd))
 		{
 			hashtableInfo[(unsigned char)c].count++;
 			c = fgetc(fd);
 		}
-		if ((c = fgetc(fd)) != EOF)
+		/*if ((c = fgetc(fd)) != EOF)
 		{
 			goto bi;
-		}
+		}*/
 
 		// 创建huffman树
 		charInfo invalid;
@@ -117,7 +120,7 @@ public:
 		c = fgetc(fd);
 		char value = 0;
 		size_t pos = 0;
-		while (c != EOF)
+		while (!feof(fd))
 		{
 			// 先拿出hash中对应字符的编码,并且按照比特位写入文件
 			std::string& code = hashtableInfo[(unsigned char)c].code;

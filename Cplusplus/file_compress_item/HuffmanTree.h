@@ -30,6 +30,8 @@ class HuffmanTree
 
 public:
 
+	HuffmanTree(){};
+
 	HuffmanTree(T* arr, size_t size, const T& invalid)// 这里的arr是一个数组的hash表
 	{
 		std::priority_queue<TreeNode*, std::vector<TreeNode*>, CompareTreeNode> minheap; //默认为大堆 小于号
