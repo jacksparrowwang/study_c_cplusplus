@@ -86,11 +86,13 @@ public:
 	{
 
 		assert(position < End() && position >= Begin());
+        size_t off = position - start;
 		if (finish == endofstorage)
 		{
 			Expand(Capacity() * 2);
 		}
 
+        position = off + start; // 如果扩容，原来的position就会失效
 		for (Iterator i = End(); i != position; --i)
 		{
 			*i = *(i - 1);
@@ -151,7 +153,7 @@ public:
 
 	Iterator& operator--()
 	{
-		return *(this-=1)
+		return *(this-=1);
 	}
 
 	Iterator operator--(int)
