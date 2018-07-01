@@ -131,7 +131,7 @@ public:
 		return *this;
 	}
 
-	void Push_back(const T& value)
+	void PushBack(const T& value)
 	{
 		Node* new_node = new Node(value);
 		Node* pre = head->prev;
@@ -140,6 +140,11 @@ public:
 
 		head->prev = new_node;
 		new_node->next = head;
+	}
+
+	void PopBack()
+	{
+		Erase(--End());
 	}
 
 	// 删除要返回原来的位置
@@ -173,22 +178,6 @@ public:
 		return nex;
 	}
 
-	// 一定要注意
-	/*void Print()
-	{
-		Vector<int>::Iterator it = v.Begin();
-		while (it != v.End())
-		{
-			if (*it == 0)
-			{	
-				it = v.Erase(it);
-			}
-			else
-			{
-				++it;
-			}
-		}
-	}*/
 
 	~MyList()
 	{
@@ -227,8 +216,7 @@ int main()
 {
 	MyList<int> list;
 	
-	
-	list.Push_back(1);
+	list.PushBack(1);
 	MyList<int>::Iterator j = list.Begin();
 	list.Insert(j, 0);
 	MyList<int>::Iterator k = list.Begin();
@@ -240,6 +228,24 @@ int main()
 		std::cout << *i << " ";
 		++i;
 	}
+
+
+	// 一定要注意
+	/*void Print()
+	{
+		Vector<int>::Iterator it = v.Begin();
+		while (it != v.End())
+		{
+			if (*it == 0)
+			{
+				it = v.Erase(it);
+			}
+			else
+			{
+				++it;
+			}
+		}
+	}*/
 	system("pause");
 	return 0;
 }
