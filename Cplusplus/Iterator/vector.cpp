@@ -2,15 +2,26 @@
 #include <Windows.h>
 #include <assert.h>
 #include <vector>
+
 template<class T>
 class MyVector
 {
 public:
 	typedef T* Iterator;
 	typedef const T* ConIterator;
+
+	// 构造
 	MyVector() :start(NULL), finish(NULL), endofstorage(NULL)
 	{}
+
+	// 析构
+	~MyVector()
+	{
+		delete[] start;
+		start = finish = endofstorage = NULL;
+	}
 	
+	// 拷贝构造
 	MyVector(const MyVector<T>& v)
 	{
 		start = new T[v.Size()];
@@ -22,7 +33,7 @@ public:
 		endofstorage = start + v.Capacity();
 	}
 
-	// this = v
+	// this = v ，赋值运算符重载
 	MyVector<int>& operator=(const MyVector<int>& v)
 	{
 		if (&v != this)
@@ -40,8 +51,9 @@ public:
 		return *this;
 	}
 
-	
-
+	/////////////////////////////
+	// vector 相关接口
+	/////////////////////////////
 	void PushBack(const T& value)
 	{
 		if (finish == endofstorage)
@@ -79,20 +91,37 @@ public:
 			*(start + i) = *(start + i + 1);
 		}
 		--finish;
-		return (Iterator)position;
+		return (Iterator)position; // 注意迭代器失效问题
 	}
+
+	// 一定要注意
+	/*void Print()
+	{
+		Vector<int>::Iterator it = v.Begin();
+		while (it != v.End())
+		{
+			if (*it == 0)
+			{
+				it = v.Erase(it);
+			}
+			else
+			{
+				++it;
+			}
+		}
+	}*/
 
 	Iterator Insert(Iterator position, const T& value)
 	{
 
 		assert(position < End() && position >= Begin());
-        size_t off = position - start;
+		size_t off = position - start;
 		if (finish == endofstorage)
 		{
 			Expand(Capacity() * 2);
 		}
 
-        position = off + start; // 如果扩容，原来的position就会失效
+		position = off + start; // 注意跌掉器失效
 		for (Iterator i = End(); i != position; --i)
 		{
 			*i = *(i - 1);
@@ -129,11 +158,35 @@ public:
 		}
 	}
 
-	~MyVector()
+	void Assign(size_t n, const T &val = T())
 	{
-		delete[] start;
-		start = finish = endofstorage = NULL;
+		if (n>Size())
+		{
+			if (n>Capacity())
+			{
+				Expand(n);
+			}
+			_finish = _start + n;
+		}
+		size_t i = 0;
+		for (i = 0; i<n; ++i)
+		{
+			_start[i] = val;
+		}
 	}
+
+	T& operator[](size_t position)
+	{
+		assert(position < Size());
+		return start[position];
+	}
+
+	const T& operator[](size_t position) const
+	{
+		assert(position < Size());
+		return start[position];
+	}
+
 
 	///////////////////////////////
 	// 迭代器
@@ -153,7 +206,7 @@ public:
 
 	Iterator& operator--()
 	{
-		return *(this-=1);
+		return *(this-=1)
 	}
 
 	Iterator operator--(int)
@@ -347,14 +400,14 @@ void Test1()
 	v1.push_back(5);
 	Print1(v1);
 }
-int main()
-{
-	//InitCopyOperatorTest();
-	//PushTest();
-	//PopTest();
-	//EraseInsertTest();
-	ResizeReseveTest();
-	//Test1();
-	system("pause");
-	return 0;
-}
+//int main()
+//{
+//	InitCopyOperatorTest();
+//	PushTest();
+//	PopTest();
+//	EraseInsertTest();
+//	ResizeReseveTest();
+//	Test1();
+//	system("pause");
+//	return 0;
+//}
