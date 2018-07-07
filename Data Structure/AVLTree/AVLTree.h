@@ -61,42 +61,39 @@ public:
 			}
 		}
 
-		// 插入
+		// 先只插入
 		Node* new_node = new Node(key, value);
 		if (parent->_key < key)
 		{
 			parent->_right = new_node;
-			++parent->_bf;
+			new_node->_parent = parent;
 		}
 		else
 		{
 			parent->_left = new_node;
-			--parent->_bf;
+			new_node->_parent = parent;
 		}
-		new_node->_parent = parent; //节点_parent指向parent
+		//new_node->_parent = parent; //节点_parent指向parent
 
 		// 更新平衡因子
 		while (parent)
 		{
+			if (parent->_left == new_node)
+			{
+				parent->_bf--;
+			}
+			else
+			{
+				parent->_bf++;
+			}
 			if (parent->_bf == 0)
 			{
 				return true;
 			}
 			else if (parent->_bf == 1 || parent->_bf == -1)
 			{
-				Node* ppNode = parent->_parent;
-				if (ppNode != NULL)
-				{
-					if (ppNode->_left == parent)
-					{
-						--ppNode->_bf;
-					}
-					else
-					{
-						++ppNode->_bf;
-					}
-				}
-				parent = ppNode;
+				new_node = parent;
+				parent = parent->_parent;
 			}
 			else if (parent->_bf == 2 || parent->_bf == -2) /// ********
 			{
@@ -127,14 +124,15 @@ public:
 						//parent->_right->_bf = 0;
 					}
 				}
-				parent->_bf = 0;
+				//parent->_bf = 0;
+				break;
 			}
 			else
 			{
 				assert(false); // 树已经错误
 			}
 		}
-		return false;
+		return true;
 	}
 
 
@@ -158,6 +156,7 @@ protected:
 		{
 			_root = parL;
 			parL->_parent = NULL; // 注意
+			parL->_bf = parent->_bf = 0;
 			return;
 		}
 		
@@ -169,6 +168,7 @@ protected:
 		else
 			pparent->_right = parL;
 		//*****
+		parL->_bf = parent->_bf = 0;
 	}
 
 	void TreeL(Node* parent) // 左旋
@@ -188,6 +188,7 @@ protected:
 		{
 			_root = parR;
 			parR->_parent = NULL;
+			parR->_bf = parent->_bf = 0;
 			return;
 		}
 
@@ -200,18 +201,65 @@ protected:
 		{
 			pparent->_left = parR;
 		}
+		parR->_bf = parent->_bf = 0;
 	}
 
 	void TreeRL(Node* parent) // 右左旋
 	{
+		Node* subR = parent->_right;
+		Node* subRL = subR->_left;
+		int bf = subRL->_bf;
 		TreeR(parent->_right);
 		TreeL(parent);
+		if (bf == 0)
+		{
+			subRL->_bf = subR->_bf = parent->_bf = 0;
+		}
+		else if (bf == 1)
+		{
+			subR->_bf = 0;
+			parent->_bf = -1;
+			subRL->_bf = 0;
+		}
+		else if (bf == -1)
+		{
+			parent->_bf = 0;
+			subR->_bf = 1;
+			subRL->_bf = 0;
+		}
+		else
+		{
+			assert(false);
+		}
 	}
 
 	void TreeLR(Node* parent) // 左右旋
 	{
+		Node* subL = parent->_left;
+		Node* subLR = subL->_right;
+		int bf = subLR->_bf;
 		TreeL(parent->_left);
 		TreeR(parent);
+		if (bf == 0)
+		{
+			subL->_bf = subLR->_bf = parent->_bf = 0;
+		}
+		else if (bf == 1)
+		{
+			parent->_bf = 0;
+			subL->_bf = -1;
+			subLR->_bf = 0;
+		}
+		else if (bf == -1)
+		{
+			subL->_bf = 0;
+			parent->_bf = 1;
+			subLR->_bf = 0;
+		}
+		else
+		{
+			assert(false);
+		}
 	}
 
 private:
