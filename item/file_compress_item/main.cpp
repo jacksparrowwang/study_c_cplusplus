@@ -5,7 +5,7 @@ using namespace std;
 int main()
 {
 	FileCompress f;
-	f.Compress("1.avi");
-	f.Uncompress("1.avi.huffman");
+	//f.Compress("1.txt");
+	f.Uncompress("1.txt.huffman");
 	return 0;
 }

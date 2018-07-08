@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdio.h>
 #include <string>
 #include <assert.h>
 #include "HuffmanTree.h"
@@ -62,7 +63,7 @@ public:
 	{
 		// 打开原来的文件
 		FILE* fd = fopen(file, "rb");
-		if (fd < 0)
+		if (fd == NULL)
 		{
 			perror("fopen error\n");
 			return;
@@ -181,7 +182,7 @@ public:
 		// 还原文件名字
 		std::string uncompress = file;
 		size_t pos = uncompress.rfind(".");
-		if (pos == string::npos)
+		if (pos == std::string::npos)
 		{
 			assert(false);
 		}
